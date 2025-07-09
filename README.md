@@ -12,15 +12,16 @@ To investigate this, the research is guided by two specific aims:
 
 ---
 
-### Indice
+## Indice
 1. [Board & System Specification](#board--system-specification)
 2. [Board Setup](#board-setup)
-3. [How to run the experiments](#how-to-run-the-experiments)
-4. [Data Analysis](#data-analysis)
+3. [How to run the "Impact of stressor on AI workload" experiment](#how-to-run-the-impact-of-stressor-on-ai-workload-experiment)
+4. [How to run the "Impact of AI workload on Real-Time Task" experiment](#how-to-run-the-impact-of-ai-workload-on-real-time-task-experiment)
+5. [Data Analysis](#data-analysis)
 
 ---
 
-### Board & System Specification
+## Board & System Specification
 - **Platform**: BeagleBone AI-64
 - **CPU**: Dual-core 64-bit Arm Cortex-A72
 - **AI Accelerators**: C71x DSP and Matrix Multiplication Accelerator (MMA)
@@ -30,7 +31,7 @@ To investigate this, the research is guided by two specific aims:
 
 ---
 
-### Board Setup
+## Board Setup
 
 **Step 1: Flash the board image**
 
@@ -69,7 +70,7 @@ The following table lists the models used for the experiments and their respecti
 
 ---
 
-### How to run the experiments
+## How to run the "Impact of stressor on AI workload" experiment
 
 **Step 1: Prepare the test image set**
 
@@ -84,7 +85,7 @@ A single YAML configuration file, `rtsia_config.yaml`, located in `/opt/edge_ai_
 The test execution is partially automated using the `run_experiment.sh` script (included in this repository). This script launches the AI workload for 30 repetitions to gather statistically relevant data.
 
 1. **For baseline ("no-stress") tests**:
-   From your home directory (/home/debian), run the script with the path to the YAML config and the desired results directory.
+   From your home directory (`/home/debian`), run the script with the path to the YAML config and the desired results directory.
   ```bash
   # Example for running MobileNetV1 without stress
   sudo ./run_experiment.sh /opt/edge_ai_apps/configs/rtsia_config.yaml ~/results/mobilenetV1/no_stress
@@ -98,7 +99,87 @@ The test execution is partially automated using the `run_experiment.sh` script (
 
 ---
 
-### Data Analysis
+## How to run the "Impact of AI workload on Real-Time Task" experiment
+
+This experiment quantifies the impact of a sustained AI workload on the maximum scheduling latency of a high-priority, real-time task using `cyclictest`. The experiment is conducted in two scenarios: 
+- on a standard, non-isolated system,
+- and on a system with a dedicated, isolated CPU core for the real-time task.
+
+### Scenario A: Non-Isolated Environment
+In this scenario, `cyclictest` and all other system tasks share the CPU cores without any specific affinity.
+
+**Step 1: Baseline measurement (No AI Workload)**
+
+First, measure the baseline real-time performance of the system without any AI workload.
+
+1. Navigate to the test scripts directory (e.g., `~/rtisia/cyclictest`)
+2. Run the `run_test_not_isolated.sh` script, whic executes `cyclictest` for 30 iterations and saves the maximum latency from each run.
+
+```bash
+# This script runs: sudo cyclictest --mlockall --priority=90 --duration=30
+sudo ./run_test_not_isolated.sh baseline_not_isolated.txt
+```
+
+**Step 2: Measurement with AI Workload**
+
+Next, measure the latency while an AI model is actively running. This requires two terminals.
+
+1. **Terminal 1 (AI Workload):**
+
+   - Ensure the `rtsia_config.yaml` file is configured for the desired AI model.
+   - Launch the AI workload from the `home/debian` directory.
+     ```bash
+      # Example for running MobileNetV1 workload
+      sudo ./run_experiment.sh /opt/edge_ai_apps/configs/rtsia_config.yaml ~/results/mobilenetV1/cyclictest_not_isolated
+     ```
+
+2. **Terminal 2 (Real-Time test):**
+
+   - Immediately after starting the AI workload, launch the `cyclictest` script as before.
+   - Save the results to a file named after the AI model being tested.
+
+3. Repeat this process for eache AI model.
+
+### Scenario B: Isolated CPU Environment
+
+In this scenario, Core 1 is isolated from the general kernel scheduler to exclusively run the `cyclictest` task, minimizing interference from other processes.
+
+**Step 1: Configure core isolation**
+
+1. **Modify kernel boot arguments**: Edit the U-Boot configuration file to add kernel boot parameters for isolation.
+   ```bash
+   sudo nano /boot/firmware/extlinux/extlinux.conf
+   ```
+
+   Find the line beginning with `append` whithin the label `BeagleBone AI-64 eMMC (default)` and add `isolcpus=1 rcu_nocbs=1` to the end of it. The result should look similar to this:
+   ```bash
+   append ... quiet isolcpus=1 rcu_nocbs=1
+   ```
+
+   > **Note on `nohz_full`**: The `nohz_full=1` parameter is omitted as the default kernel is not compiled with `CONFIG_NO_HZ_FULL=y`, rendering the parameter ineffective. This can be verified with `grep CONFIG_NO_HZ_FULL /boot/config-$(uname -r).`.
+
+   > **Note on Interrupt Affinity**: Complete core isolation requires migrating device interrupts. An analysis via `cat /proc/interrupts` shows that the only interrupt remaining on the isolated Core 1 is IRQ 11 (`arch_time`). This is a per-CPU timer essential for the core's internal scheduling and cannot be migrated. The kernel intentionally locks its affinity to ensure system stability.
+
+2. **Reboot the board**: Apply the changes by rebooting the system.
+   ```bash
+   sudo reboot
+   ```
+
+**Step 2: Baseline measurement (Isolated core)**
+
+After rebooting, repeat the baseline measurement, this time pinning `cyclictest` to the isolated Core 1 using `taskset`.
+
+```bash
+# This script runs: sudo taskset -c 1 cyclictest --mlockall --priority=90 --duration=30
+sudo ./run_test_isolated.sh baseline_isolated.txt
+```
+
+**Step 3: Measurement with AI Workload (Isolated core)**
+Finally, repeat the interference test from Scenario A, but use the isolated test script.
+  
+---
+
+## Data Analysis
 After all experiments are complete, the `~/results` directory on the BeagleBone will contain all the raw log files.
 1. Transfer the `results` directory back to your PC using `scp`.
 2. The `analysis/` folder in this repository contains Python scripts to automatically parse all log files, consolidate the data, and generate the final boxplots for the report.
