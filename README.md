@@ -4,6 +4,10 @@
 - [Vincenzo Luigi Bruno](https://github.com/vlb20)
 - [Salvatore Cangiano](https://github.com/Salvr28)
 
+<img src="https://github.com/user-attachments/assets/a8b23c94-1a56-4539-86d6-5e93ec562d64" alt="Icon BB" width="300"/>
+
+--- 
+
 The primary objective of this study is to provide a quantitative characterization of the performance interference between AI workloads and system-level tasks on the BeagleBone AI-64 platform.
 
 To investigate this, the research is guided by two specific aims:
@@ -12,7 +16,7 @@ To investigate this, the research is guided by two specific aims:
 
 ---
 
-## Indice
+## Table of Contents
 1. [Board & System Specification](#board--system-specification)
 2. [Board Setup](#board-setup)
 3. [How to run the "Impact of stressor on AI workload" experiment](#how-to-run-the-impact-of-stressor-on-ai-workload-experiment)
@@ -28,6 +32,8 @@ To investigate this, the research is guided by two specific aims:
 - **Memory**: 4GB LPDDR4 RAM, 16GB eMMC Flash
 - **Operating System**: `BBAI64 11.8 2023-10-07 10GB eMMC TI EDGEAI Xfce Flasher`
 - **Kernel**: Linux 5.10.168-ti-arm64-r111
+
+<img src="https://github.com/user-attachments/assets/7a263ec9-469c-4634-b5c6-3e0ddfb6b360" alt="Icon BB-AI-64" width="300"/>
 
 ---
 
