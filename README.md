@@ -113,7 +113,7 @@ In this scenario, `cyclictest` and all other system tasks share the CPU cores wi
 First, measure the baseline real-time performance of the system without any AI workload.
 
 1. Navigate to the test scripts directory (e.g., `~/rtisia/cyclictest`)
-2. Run the `run_test_not_isolated.sh` script, whic executes `cyclictest` for 30 iterations and saves the maximum latency from each run.
+2. Run the `run_test_not_isolated.sh` script, which executes `cyclictest` for 30 iterations and saves the maximum latency from each run.
 
 ```bash
 # This script runs: sudo cyclictest --mlockall --priority=90 --duration=30
@@ -138,7 +138,7 @@ Next, measure the latency while an AI model is actively running. This requires t
    - Immediately after starting the AI workload, launch the `cyclictest` script as before.
    - Save the results to a file named after the AI model being tested.
 
-3. Repeat this process for eache AI model.
+3. Repeat this process for each AI model.
 
 ### Scenario B: Isolated CPU Environment
 
@@ -175,6 +175,7 @@ sudo ./run_test_isolated.sh baseline_isolated.txt
 ```
 
 **Step 3: Measurement with AI Workload (Isolated core)**
+
 Finally, repeat the interference test from Scenario A, but use the isolated test script.
   
 ---
