@@ -215,8 +215,8 @@ Finally, repeat the interference test from Scenario A, but use the isolated test
 ---
 
 ## Data Analysis
-After all experiments are complete, the `~/results` directory on the BeagleBone will contain all the raw log files.
-1. Transfer the `results` directory back to your PC using `scp`.
-2. The `analysis/` folder in this repository contains Python scripts to automatically parse all log files, consolidate the data, and generate the final boxplots for the report.
+After all experiments are complete, the `~/rtsia` directory on the BeagleBone will contain all the raw log files.
+1. Transfer the results directory back to your PC using `scp`.
+2. The `data_results_and_analysis/` folder in this repository contains Python scripts to automatically parse all log files, consolidate the data, and generate the final boxplots for the report.
 
 > It is recommended to use the file `requirements.txt` to set up a virtual environment on your host PC before running `main_plot.py`.
