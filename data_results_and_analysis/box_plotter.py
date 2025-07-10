@@ -10,7 +10,10 @@ class BoxPlotter():
         self.models = self.configs['models']
 
     def plots_data(self):
-
+        """
+        Plots AI Inference times comparing different AI models in different stress conditions
+        """
+        
         stress_labels = self.configs['stressors']
         model_names = list(self.models.keys())
         num_models_per_group = len(model_names) # A boxplot for each stressor
@@ -109,7 +112,12 @@ class BoxPlotter():
         return fig, ax
 
     def plot_isolation_comparison(self):
+        """
+        Plots cyclictest max latency values during AI inference. It compares different types
+        of AI inference disturbs (different models).
+        """
 
+        # A boxplot for each model
         model_names = list(self.models.keys())
         num_isolation_types = 2
 
@@ -130,13 +138,17 @@ class BoxPlotter():
             mpatches.Patch(color=self.configs['colors']['ISOLATED'], label='ISOLATED')
         ]
 
+        # Counter to set model's boxplot in the fig
         global_boxplot_position_counter = 0
 
         overall_x_tick_positions = []
         overall_x_tick_labels = []
 
+        # Iterating through models
         for i, model_name in enumerate(model_names):
 
+            # Comparing two enviroment, isolated and not isolated cpu
+            # Each area will have two boxplot for one model, one for each configuration
             not_isolated_file_path = self.models[model_name]['not_isolated_path']
             isolated_file_path = self.models[model_name]['isolated_path']
 
@@ -144,6 +156,7 @@ class BoxPlotter():
             boxplot_positions_for_current_model_group = []
 
             try:
+                # Loading not isolated data from files
                 not_isolated_data = np.loadtxt(not_isolated_file_path, dtype=float)
                 data_for_current_model_group.append(not_isolated_data)
                 position_not_isolated = global_boxplot_position_counter + 1
@@ -160,6 +173,7 @@ class BoxPlotter():
                 boxplot_positions_for_current_model_group.append(position_not_isolated)
 
             try:
+                # Loading isolated data from files
                 isolated_data = np.loadtxt(isolated_file_path, dtype=float)
                 data_for_current_model_group.append(isolated_data)
                 position_isolated = position_not_isolated + boxplot_width + gap_within_group
@@ -175,9 +189,11 @@ class BoxPlotter():
                 position_isolated = position_not_isolated + boxplot_width + gap_within_group
                 boxplot_positions_for_current_model_group.append(position_isolated)
 
+            # Check data 
             valid_data_for_boxplot = [d for d in data_for_current_model_group if len(d) > 0]
             valid_positions_for_boxplot = [p for p, d in zip(boxplot_positions_for_current_model_group, data_for_current_model_group) if len(d) > 0]
 
+            # Building the boxplot
             if valid_data_for_boxplot:
                 bplot = ax.boxplot(valid_data_for_boxplot,
                                    positions=valid_positions_for_boxplot,
@@ -200,8 +216,10 @@ class BoxPlotter():
                                  color='gray', fontsize=10)
 
 
+            # Update global counter 
             global_boxplot_position_counter = max(boxplot_positions_for_current_model_group)
 
+            # Calculating position for model label, centering it
             center_of_current_model_group = (boxplot_positions_for_current_model_group[0] + boxplot_positions_for_current_model_group[1]) / 2
             overall_x_tick_positions.append(center_of_current_model_group)
             overall_x_tick_labels.append(model_name)
@@ -211,6 +229,7 @@ class BoxPlotter():
                 ax.axvline(x=line_x_position, color='gray', linestyle='--', linewidth=1, clip_on=False)
                 global_boxplot_position_counter += gap_between_groups
 
+        # Setting all parameters to axis
         ax.set_xticks(overall_x_tick_positions)
         ax.set_xticklabels(overall_x_tick_labels, rotation=45, ha='center')
 
