@@ -18,11 +18,12 @@ Specific Aims:
 ---
 
 ## Table of Contents
-1. [Board & System Specification](#board--system-specification)
-2. [Board Setup](#board-setup)
-3. [How to run the "Impact of stressor on AI workload" experiment](#how-to-run-the-impact-of-stressor-on-ai-workload-experiment)
-4. [How to run the "Impact of AI workload on Real-Time Task" experiment](#how-to-run-the-impact-of-ai-workload-on-real-time-task-experiment)
-5. [Data Analysis](#data-analysis)
+1. [Repository Structure](#repository-structure)
+2. [Board & System Specification](#board--system-specification)
+3. [Board Setup](#board-setup)
+4. [How to run the "Impact of stressor on AI workload" experiment](#how-to-run-the-impact-of-stressor-on-ai-workload-experiment)
+5. [How to run the "Impact of AI workload on Real-Time Task" experiment](#how-to-run-the-impact-of-ai-workload-on-real-time-task-experiment)
+6. [Data Analysis](#data-analysis)
 
 ---
 
