@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 def main():
 
-    # --- Configurazioni per i boxplot dell'esperimento "Impact of stressor on AI workload" ---
+    # --- Boxplot Configuration for experiment: "Impact of stressor on AI workload" ---
     configs1 ={
         'models':{
             'mobilnetV1':{
@@ -57,7 +57,7 @@ def main():
         ]
     }
 
-    # --- Configurazione per il boxplot per l'esperimento "Impact of AI workload on Real-Time Task" ---
+    # --- Boxplot Configuration for experiment: "Impact of AI workload on Real-Time Task" ---
     configs_isolation_comparison = {
         'models': {
             'BASELINE': {
