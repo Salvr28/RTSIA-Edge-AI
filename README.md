@@ -8,11 +8,12 @@
 
 --- 
 
-The primary objective of this study is to provide a quantitative characterization of the performance interference between AI workloads and system-level tasks on the BeagleBone AI-64 platform.
+This study quantifies the performance interference between AI workloads and system-level tasks on the BeagleBone AI-64 platform.
 
-To investigate this, the research is guided by two specific aims:
-1. To evaluate the resilience of the AI inference process against various types of system-wide resource contention. This is achieved by measuring the **Inference Time** of several standard neural network models while the system is subjected to controlled stress on its CPU, memory, and I/O subsystems with `stress-ng`.
-2. To quantify the reciprocal impact of a sustained AI workload on the predictability of a high-priority, real-time task. This is achieved by measuring the **Maximum Scheduling Latency** of a `cyclictest` task running on the main CPU while the AI accelerators are concurrently active.
+Specific Aims:
+
+1. **To evaluate AI resilience under system stress**: We measure the `Inference Time` of standard neural network models while placing the CPU, memory, and I/O subsystems under controlled stress with `stress-ng`.
+2. **To measure AI's impact on real-time performance**: We quantify the effect of a sustained AI workload on task predictability by measuring the `Maximum Scheduling Latency` of a high-priority `cyclictest` task running concurrently with the AI accelerators.
 
 ---
 
@@ -22,6 +23,32 @@ To investigate this, the research is guided by two specific aims:
 3. [How to run the "Impact of stressor on AI workload" experiment](#how-to-run-the-impact-of-stressor-on-ai-workload-experiment)
 4. [How to run the "Impact of AI workload on Real-Time Task" experiment](#how-to-run-the-impact-of-ai-workload-on-real-time-task-experiment)
 5. [Data Analysis](#data-analysis)
+
+---
+
+## Repository Structure
+This repository is organized into directories for data analysis and experiment execution. 
+
+```
+.
+├── data_results_and_analysis/       # Pyhon scripts for data analysis and log files from Beaglebone
+│   ├── cyclic_test_isolated_data/     # log files from cyclictest runs in the isolated CPU scenario
+│   ├── cyclic_test_not_isolated_data/ # non-isolated scenario
+│   ├── stress_on_ai_data/             # log files from AI inference experiments under stress-ng 
+│   ├── box_plotter.py                 # Python class utility used for generating boxplots
+│   └── main_plot.py                   # Main analysis script: parse all data and generate plots
+├── experiments_scripts/            # Configuration and automation experiment scripts for BB-AI-64 
+│   ├── rtsia_config.yaml              # YAML configuration file for the TI Edge AI application
+│   ├── run_ex.sh                      # Script for automating the "stressor on AI workload" exp.
+│   ├── run_test_isolated.sh           # Script for automating the cyclictest experiment
+│   └── run_test_not_isolated.sh
+├── README.md
+└── requirements.txt                # Python dependencies required to run the analysis scripts
+```
+
+- **`rtisia_config.yaml`**: destination on BeagleBone `/opt/edge_ai_apps/configs/`
+- **`run_ex.sh`**: destination on BeagleBone `/home/debian/rtsia/`
+- **`run_test_isolated.sh`** & **`run_test_not_isolated.sh`**: destination on BeagleBone `/home/debian/rtsia/cyclictest/`
 
 ---
 
@@ -190,3 +217,5 @@ Finally, repeat the interference test from Scenario A, but use the isolated test
 After all experiments are complete, the `~/results` directory on the BeagleBone will contain all the raw log files.
 1. Transfer the `results` directory back to your PC using `scp`.
 2. The `analysis/` folder in this repository contains Python scripts to automatically parse all log files, consolidate the data, and generate the final boxplots for the report.
+
+> It is recommended to use the file `requirements.txt` to set up a virtual environment on your host PC before running `main_plot.py`.
