@@ -101,8 +101,8 @@ The following table lists the models used for the experiments and their respecti
 | MobileNet v2 | `/opt/model_zoo/ONR-CL-6070-mobileNetV2` |
 | SSD MobileNet v1 | `/opt/model_zoo/TFL-OD-2000-ssd-mobV1-coco-mlperf-300x300` |
 | SSD MobileNet v2 | `/opt/model_zoo/TFL-OD-2010-ssd-mobV2-coco-mlperf-300x300` |
-| ResNet 18 | `/opt/model_zoo/` |
-| ResNet 50 | `/opt/model_zoo/` |
+| ResNet 18 | `/opt/model_zoo/ONR-CL-6100-resNet18` |
+| ResNet 50 | `/opt/model_zoo/ONR-CL-6110-resNet50` |
 
 ---
 
