@@ -280,20 +280,24 @@ This process was performed on a separate Linux machine running Ubuntu 22.04 LTS.
 
    - **Enable Tickless System**: This allows the use of the `nohz_full` boot parameter for better real-time performance.
      `General setup -> Timers subsystem -> Full dynticks system (tickless)`
-      <img width="642" height="78" alt="image" src="https://github.com/user-attachments/assets/4eb20859-e7cd-43d4-8131-e1a3129b1fb8" />
+     
+      <img width="500" height="78" alt="image" src="https://github.com/user-attachments/assets/4eb20859-e7cd-43d4-8131-e1a3129b1fb8" />
    - **Verify Preemption Model**: On this real-time branch, the correct preemption model is already selected by default.
      `General setup -> Preemption Model -> Fully Preemptible Kernel (Real-Time)`
-      <img width="784" height="438" alt="image" src="https://github.com/user-attachments/assets/6e915b77-1355-4f51-b2cd-7f41d71a0d56" />
+     
+      <img width="500" height="300" alt="image" src="https://github.com/user-attachments/assets/6e915b77-1355-4f51-b2cd-7f41d71a0d56" />
    - **Verify CPU Governor**: We confirmed the default CPU governor was set to `performance` for maximum speed.
      `CPU Power Management -> CPU Frequency Scaling`
-      <img width="582" height="267" alt="image" src="https://github.com/user-attachments/assets/9444a0eb-114a-4b29-b09f-7f58a00036a9" />
+     
+      <img width="500" height="267" alt="image" src="https://github.com/user-attachments/assets/9444a0eb-114a-4b29-b09f-7f58a00036a9" />
 
     After saving the configuration, exit the menu. The build script will then resume and complete the compilation process.
 
 5. **Locate the Kernel Package**
 
    Once the process is finished, the compiled kernel package can be found in the `ti-linux-kernel-dev/deploy/` directory. The file we need is named `linux-image-....deb.`
-   <img width="845" height="79" alt="image" src="https://github.com/user-attachments/assets/70f30431-b06c-4f0f-81df-9988917f0999" />
+   
+   <img width="500" height="79" alt="image" src="https://github.com/user-attachments/assets/70f30431-b06c-4f0f-81df-9988917f0999" />
 
 ### Part 2: Installing the Kernel on the BeagleBone
 
@@ -303,7 +307,8 @@ This process was performed on a separate Linux machine running Ubuntu 22.04 LTS.
    ```bash
    dpkg -c linux-image-*.deb | less
    ```
-   <img width="869" height="117" alt="image" src="https://github.com/user-attachments/assets/b26ce5e7-473c-4aab-ba55-dbae6e11ba39" />
+   
+   <img width="500" height="117" alt="image" src="https://github.com/user-attachments/assets/b26ce5e7-473c-4aab-ba55-dbae6e11ba39" />
 
 2. **Transfer the Kernel Package to the BeagleBone**
    
