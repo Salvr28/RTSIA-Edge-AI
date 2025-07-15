@@ -25,6 +25,7 @@ Specific Aims:
 5. [How to run the "Impact of AI workload on Real-Time Task" experiment](#how-to-run-the-impact-of-ai-workload-on-real-time-task-experiment)
 6. [Data Analysis](#data-analysis)
 7. [Appendix: PREEMPT_RT Kernel Experiment](#appendix-preempt_rt-kernel-experiment)
+8. [Acknowledgments](#acknowledgments)
 
 ---
 
@@ -337,3 +338,8 @@ As anticipated, after rebooting with the new kernel, the **TI Edge AI SDK and it
 Our testing was therefore limited to measuring the baseline latency with `cyclictest`.
 
 - **Validation**: The newly compiled `PREEMPT_RT` kernel demonstrated **exceptionally low and predictable baseline latency**. The results were superior even to the isolated CPU scenario on the stock kernel, confirming the patch's definitive effectiveness for hard real-time tasks.
+
+## Acknowledgments
+- Our special thanks to [Robert C. Nelson](https://github.com/RobertCNelson) for his critical support on the official forums and for his [ti-linux-kernel-dev](https://github.com/RobertCNelson/ti-linux-kernel-dev) repository, whose scripts were essential for compiling our `PREEMPT_RT` kernel.
+
+- We also thank the [BeagleBone Cookbook](https://docs.beagleboard.org/books/beaglebone-cookbook/) for serving as a key setup reference.
