@@ -24,6 +24,7 @@ Specific Aims:
 4. [How to run the "Impact of stressor on AI workload" experiment](#how-to-run-the-impact-of-stressor-on-ai-workload-experiment)
 5. [How to run the "Impact of AI workload on Real-Time Task" experiment](#how-to-run-the-impact-of-ai-workload-on-real-time-task-experiment)
 6. [Data Analysis](#data-analysis)
+7. [Appendix: PREEMPT_RT Kernel Experiment](#appendix-preempt_rt-kernel-experiment)
 
 ---
 
@@ -222,3 +223,117 @@ After all experiments are complete, the `~/rtsia` directory on the BeagleBone wi
 2. The `data_results_and_analysis/` folder in this repository contains Python scripts to automatically parse all log files, consolidate the data, and generate the final boxplots for the report.
 
 > It is recommended to use the file `requirements.txt` to set up a virtual environment on your host PC before running `main_plot.py`.
+
+---
+
+## Appendix: PREEMPT_RT Kernel Experiment
+
+To explore the platform's maximum real-time potential, we conducted an additional experiment by attempting to use a kernel patched with **PREEMPT_RT**. This patch is designed to turn the Linux kernel into a fully preemptible, real-time operating system, offering lower and more predictable latencies than standard kernel configurations.
+
+But...we immediately faced a version conflict:
+- The provided board image, which includes necessary **TI Edge AI SDK**, is based on **Kernel 5.10**
+- The officially supported `PREEMPT_RT` patches for the BBAI-64 platform, however, are only available for newer kernel version (6.1 and 6.6).
+
+This incompatibility meant we could not simply patch the existing kernel.
+
+### Our approach: Compiling a newer RT Kernel
+
+Despite the incompatibility, we proceeded to validate the `PREEMPT_RT` capabilities. We installed a newer official board image that supported a 6.6 series kernel and then recompiled it using a specialized toolchain that handles patching and configuration.
+
+This process was divided into 2 main parts.
+
+### Part 1: Compiling the Kernel on a Host PC
+
+This process was performed on a separate Linux machine running Ubuntu 22.04 LTS.
+
+1. **Clone the Kernel Builder Repository**
+
+   We used Robert C. Nelson's repository, which contains the necessary scripts to build the kernel and its Debian package.
+
+   ```bash
+   git clone https://github.com/RobertCNelson/ti-linux-kernel-dev.git
+   cd ti-linux-kernel-dev
+   ```
+
+2. **Check out the Real-Time branch**
+
+   We checked out the specific branch for the 6.6 real-time kernel, which already includes the `PREEMPT_RT` patches.
+
+   ```bash
+   git checkout ti-linux-rt-arm64-6.6.y
+   ```
+
+3. **Run the Build script**
+
+   The `build_deb.sh` script automates the entire process, including downloading the required cross-compilers.
+
+   ```bash
+   ./build_deb.sh
+   ```
+
+   > **Note**: The script may prompt you to install additional packages. Use `sudo apt install <package_name>` to install any dependencies.
+
+4. **Configure the Kernel**
+   
+   During the build process, the Kernel Configuration Menu (`menuconfig`) will appear. We ensured the following options were set:
+
+   - **Enable Tickless System**: This allows the use of the `nohz_full` boot parameter for better real-time performance.
+     `General setup -> Timers subsystem -> Full dynticks system (tickless)`
+      <img width="642" height="78" alt="image" src="https://github.com/user-attachments/assets/4eb20859-e7cd-43d4-8131-e1a3129b1fb8" />
+   - **Verify Preemption Model**: On this real-time branch, the correct preemption model is already selected by default.
+     `General setup -> Preemption Model -> Fully Preemptible Kernel (Real-Time)`
+      <img width="784" height="438" alt="image" src="https://github.com/user-attachments/assets/6e915b77-1355-4f51-b2cd-7f41d71a0d56" />
+   - **Verify CPU Governor**: We confirmed the default CPU governor was set to `performance` for maximum speed.
+     `CPU Power Management -> CPU Frequency Scaling`
+      <img width="582" height="267" alt="image" src="https://github.com/user-attachments/assets/9444a0eb-114a-4b29-b09f-7f58a00036a9" />
+
+    After saving the configuration, exit the menu. The build script will then resume and complete the compilation process.
+
+5. **Locate the Kernel Package**
+
+   Once the process is finished, the compiled kernel package can be found in the `ti-linux-kernel-dev/deploy/` directory. The file we need is named `linux-image-....deb.`
+   <img width="845" height="79" alt="image" src="https://github.com/user-attachments/assets/70f30431-b06c-4f0f-81df-9988917f0999" />
+
+### Part 2: Installing the Kernel on the BeagleBone
+
+1. **(Optional) Inspect the package**
+   
+   Before transferring the file, you can inspect its contents on the host PC to verify that it will place files in the correct `/boot` directory on the target.
+   ```bash
+   dpkg -c linux-image-*.deb | less
+   ```
+   <img width="869" height="117" alt="image" src="https://github.com/user-attachments/assets/b26ce5e7-473c-4aab-ba55-dbae6e11ba39" />
+
+2. **Transfer the Kernel Package to the BeagleBone**
+   
+   We transferred the `.deb` file to our BeagleBone using `scp`
+
+   ```bash
+   # from the host PC
+   scp linux-image-*.deb debian@192.168.7.2:.
+   ```
+
+   > **Note**: Remember to replace `debian` with your actual username on the BeagleBone if you have changed it in the sysconf.
+
+3. **Install and Reboot**
+   
+   Once connected to the BeagleBone via SSH, we installed the new kernel package using `dpkg`.
+
+   ```bash
+   # On the BeagleBone
+   sudo dpkg --install linux-image-*.deb
+   ```
+
+   With newer images, the bootloader configuration (`extlinux.conf`) should automatically prioritize the newest installed kernel. We then applied the changes by rebooting.
+
+   ```bash
+   sudo reboot
+   ```
+
+### Final Results and Critical Limitation
+
+As anticipated, after rebooting with the new kernel, the **TI Edge AI SDK and its inference applications were no longer available**, as the newer official board image we used for this experiment does not provide them as a built-in component.
+
+Our testing was therefore limited to measuring the baseline latency with `cyclictest`.
+
+- **Validation**: The newly compiled `PREEMPT_RT` kernel demonstrated **exceptionally low and predictable baseline latency**. The results were superior even to the isolated CPU scenario on the stock kernel, confirming the patch's definitive effectiveness for hard real-time tasks.
